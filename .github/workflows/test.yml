@@ -21,19 +21,19 @@ jobs:
       - name: Run integration tests
         run: sh ./.integrationtest.sh
 
-  test-bionic:
-    name: Test with a bionic rootfs
+  test-jammy:
+    name: Test with a jammy rootfs
     runs-on: ubuntu-latest
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Switch to Ubuntu Bionic rootfs
-      - name: Switch to Ubuntu Bionic rootfs
+      # Switch to Ubuntu Jammy rootfs
+      - name: Switch to Ubuntu Jammy rootfs
         run: |
-          echo -n "mendix/rootfs:bionic" > rootfs.version
-          echo -n "bionic" > docker-buildpack.version
+          echo -n "mendix/rootfs:jammy" > rootfs.version
+          echo -n "jammy" > docker-buildpack.version
 
       # Run the integration test script
       - name: Run integration tests

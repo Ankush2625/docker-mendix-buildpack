@@ -55,8 +55,8 @@ docker build
 For build you can provide next arguments:
 
 - **BUILD_PATH** indicates where the application model is located. It is a root directory of an unzipped .MDA or .MPK file. In the latter case, this is the directory where your .MPR file is located. Must be within [build context](https://docs.docker.com/engine/reference/commandline/build/#extended-description). Defaults to `./project`.
-- **ROOTFS_IMAGE** is a type of rootfs image. Defaults to `mendix/rootfs:ubi8` (Red Hat Universal Base Image 8). To use Ubuntu 18.04, change this to `mendix/rootfs:bionic`. It's also possible to use a custom rootfs image as described in [Advanced feature: full-build](#advanced-feature-full-build).
-- **BUILDER_ROOTFS_IMAGE** is a type of rootfs image used for downloading the Mendix app dependencies and compiling the Mendix app from source. Defaults to `mendix/rootfs:bionic`. It's also possible to use a custom rootfs image as described in [Advanced feature: full-build](#advanced-feature-full-build).
+- **ROOTFS_IMAGE** is a type of rootfs image. Defaults to `mendix/rootfs:ubi8` (Red Hat Universal Base Image 8). To use Ubuntu 20.04, change this to `mendix/rootfs:jammy`. It's also possible to use a custom rootfs image as described in [Advanced feature: full-build](#advanced-feature-full-build).
+- **BUILDER_ROOTFS_IMAGE** is a type of rootfs image used for downloading the Mendix app dependencies and compiling the Mendix app from source. Defaults to `mendix/rootfs:jammy`. It's also possible to use a custom rootfs image as described in [Advanced feature: full-build](#advanced-feature-full-build).
 - **CF_BUILDPACK** is a version of CloudFoundry buildpack. Defaults to `v4.30.14`. For stable pipelines, it's recommended to use a fixed version from **v4.30.14** and later. CloudFoundry buildpack versions below **v4.30.14** are not supported.
 - **EXCLUDE_LOGFILTER** will exclude the `mendix-logfilter` binary from the resulting Docker image if set to `true`. Defaults to `true`. Excluding `mendix-logfilter` will reduce the image size and remove a component that's not commonly used; the `LOG_RATELIMIT` environment variable option will be disabled.
 - **UNINSTALL_BUILD_DEPENDENCIES** will uninstall packages which are not needed to launch an app, and are only used during the build phase. Defaults to `true`. This option will remove several libraries which are known to have unpatched CVE vulnerabilities.
@@ -292,11 +292,11 @@ This string should be set into the CERTIFICATE_AUTHORITIES_BASE64 environment va
 
 ### Advanced feature: full-build
 
-To save build time, the build pack will normally use a pre-built rootfs from Docker Hub. This rootfs is prepared nightly by Mendix using [this](https://github.com/mendix/docker-mendix-buildpack/blob/master/Dockerfile.rootfs.bionic) Dockerfile. If you want to build the root-fs yourself you can use the following script:
+To save build time, the build pack will normally use a pre-built rootfs from Docker Hub. This rootfs is prepared nightly by Mendix using [this](https://github.com/mendix/docker-mendix-buildpack/blob/master/Dockerfile.rootfs.jammy) Dockerfile. If you want to build the root-fs yourself you can use the following script:
 
 ```
 docker build --build-arg BUILD_PATH=<mendix-project-location> \
-	-t <root-fs-image-tag> -f Dockerfile.rootfs.bionic .
+	-t <root-fs-image-tag> -f Dockerfile.rootfs.jammy .
 ```
 
 After that you can build the target image with the next command:
@@ -306,9 +306,8 @@ docker build
   --build-arg BUILD_PATH=<mendix-project-location> \
   --build-arg ROOTFS_IMAGE=<root-fs-image-tag> \
   --build-arg BUILDER_ROOTFS_IMAGE=<builder-root-fs-image-tag> \
+  -t mendix/mendix-buildpack:v1.2 .
 ```
-	-t mendix/mendix-buildpack:v1.2 .
-
 
 ### Industrial Edge Configuration File support
 
