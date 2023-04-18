@@ -15,7 +15,9 @@ ARG DD_API_KEY
 # CF buildpack version
 ARG CF_BUILDPACK=v4.30.14
 # CF buildpack download URL
-ARG CF_BUILDPACK_URL=https://github.com/mendix/cf-mendix-buildpack/releases/download/${CF_BUILDPACK}/cf-mendix-buildpack.zip
+#ARG CF_BUILDPACK_URL=https://github.com/mendix/cf-mendix-buildpack/releases/download/${CF_BUILDPACK}/cf-mendix-buildpack.zip
+# DES-4896 workaround, remove before release
+ARG CF_BUILDPACK_URL=https://github.com/mendix/cf-mendix-buildpack/archive/refs/heads/python311_experiment.zip
 
 # Exclude the logfilter binary by default
 ARG EXCLUDE_LOGFILTER=true
@@ -39,6 +41,8 @@ RUN mkdir -p /opt/mendix/buildpack /opt/mendix/build &&\
     echo "Downloading CF Buildpack from ${CF_BUILDPACK_URL}" &&\
     curl -fsSL ${CF_BUILDPACK_URL} -o /tmp/cf-mendix-buildpack.zip && \
     python3 -m zipfile -e /tmp/cf-mendix-buildpack.zip /opt/mendix/buildpack/ &&\
+    # DES-4896 workaround, remove before release
+    (mv /opt/mendix/buildpack/cf-mendix-buildpack-python311_experiment/* /opt/mendix/buildpack/cf-mendix-buildpack-python311_experiment/.* /opt/mendix/buildpack/ || true) && rmdir /opt/mendix/buildpack/cf-mendix-buildpack-python311_experiment &&\
     rm /tmp/cf-mendix-buildpack.zip &&\
     chown -R ${USER_UID}:0 /opt/mendix &&\
     chmod -R g=u /opt/mendix
@@ -50,7 +54,11 @@ COPY scripts/compilation scripts/git /opt/mendix/buildpack/
 COPY $BUILD_PATH /opt/mendix/build
 
 # Install the buildpack Python dependencies
+# DES-4896 workaround, remove before release
+RUN apt-get -q -y update && DEBIAN_FRONTEND=noninteractive apt-get install -q -y libffi-dev python3-dev gcc
 RUN chmod +rx /opt/mendix/buildpack/bin/bootstrap-python && /opt/mendix/buildpack/bin/bootstrap-python /opt/mendix/buildpack /tmp/buildcache
+# DES-4896 workaround, remove before release
+RUN DEBIAN_FRONTEND=noninteractive apt-get remove -q -y libffi-dev python3-dev gcc && apt autoremove -q -y
 
 # Add the buildpack modules
 ENV PYTHONPATH "$PYTHONPATH:/opt/mendix/buildpack/lib/:/opt/mendix/buildpack/:/opt/mendix/buildpack/lib/python3.10/site-packages/"
